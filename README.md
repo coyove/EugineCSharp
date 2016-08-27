@@ -1,0 +1,3 @@
+# Eugine
+
+Eugine is a lisp-like language written in C#. Tests are being added and currently we have a 30-40% coverage, sort of...
