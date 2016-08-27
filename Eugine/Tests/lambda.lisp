@@ -4,6 +4,10 @@
 
 (assert [((test-closure 4) 3) == 12] "Test closure: " 12)
 
+(set dummy 0)
+([(i) => (-> (set dummy i) (set dummy-2 i))] 1)
+(assert [[dummy == 1] and [dummy-2 == null]] "Test closure 2")
+
 ;================================================
 
 (set #test-list (1 2 3 4 5 -0.5))

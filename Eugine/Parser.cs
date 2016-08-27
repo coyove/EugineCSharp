@@ -252,11 +252,11 @@ namespace Eugine
             var path = "";
             var source = "";
 
-            if (ee.ContainsKey("~path")) path = ee["~path"].Evaluate(null).GetValue<String>();
-            if (ee.ContainsKey("~source")) source = ee["~source"].Evaluate(null).GetValue<String>();
+            if (ee.ContainsKey("~path")) path = ee["~path"].Evaluate(null).Get<String>();
+            if (ee.ContainsKey("~source")) source = ee["~source"].Evaluate(null).Get<String>();
 
             var s = p.Parse(code, path, source);
-            return SExpression.Cast(s).Evaluate(ee).GetValue<object>();
+            return SExpression.Cast(s).Evaluate(ee).Get<object>();
         }
 
         public object ExecuteFile(string filePath, ExecEnvironment ee)
@@ -271,7 +271,7 @@ namespace Eugine
             ee["~source"] = new SString(source);
 
             var s = p.Parse(code, path, source);
-            return SExpression.Cast(s).Evaluate(ee).GetValue<object>();
+            return SExpression.Cast(s).Evaluate(ee).Get<object>();
         }
     }
 }

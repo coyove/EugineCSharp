@@ -22,7 +22,7 @@ namespace Eugine
             var list = this.list.Evaluate(env) as SList;
             if (list == null) throw new VMException("only lists can be exploded", headAtom);
 
-            return new SExploded(list.GetValue<List<SValue>>());
+            return new SExploded(list.Get<List<SValue>>());
         }
     }
 
@@ -71,7 +71,7 @@ namespace Eugine
 
         public override SValue Evaluate(ExecEnvironment env)
         {
-            var obj = Type.GetType((this.obj.Evaluate(env) as SString)?.GetValue<String>());
+            var obj = Type.GetType((this.obj.Evaluate(env) as SString)?.Get<String>());
             if (obj == null) throw new VMException("cannot get type", headAtom);
 
             return new SNull();

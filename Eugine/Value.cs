@@ -94,6 +94,8 @@ namespace Eugine
             { "random", (h, c) => new SESingleCore("random", h, c) },
             { "time",   (h, c) => new SESingleCore("time", h, c) },
             { "explode",(h, c) => new SEExplode(h, c) },
+            { "regex",  (h, c) => new SERegex(h, c) },
+            { "match",  (h, c) => new SERegexMatch(h, c) },
         };
 
         public static List<SValue> EvalSExpressions(List<SExpression> arguments, ExecEnvironment env)
@@ -206,7 +208,7 @@ namespace Eugine
             Underlying = underlying;
         }
 
-        public T GetValue<T>()
+        public T Get<T>()
         {
             return (T)Underlying;
         }

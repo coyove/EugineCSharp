@@ -92,3 +92,13 @@
 	(assert (deep-compare-list (list-op [math-op : k 0] [math-op : k 1] [math-op : k 2]) 
 		[[math-op : k] : 3]) "Currying " k)
 )])
+
+;========================================
+
+(set re (regex @"https?:\/\/(\S+)" @IgnoreCase))
+(set #regex-test-string "Google's website should be http://www.google.com or
+HTTPS://google.com if you regard safe-browsing as important")
+
+;; as long as the .NET regex engine is working properly, these should be correct too
+(assert [[(match re #regex-test-string) : "1" "capture"] == "www.google.com"] "regex test 1")
+(assert [[(match re #regex-test-string 40) : "0" "capture"] == "HTTPS://google.com"] "regex test 2")

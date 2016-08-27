@@ -43,7 +43,7 @@ namespace Eugine
                 else if (n.RefList != null)
                     n.RefList[n.RefListIndex] = ret;
                 else if (n is SString)
-                    env[n.GetValue<String>()] = ret;
+                    env[n.Get<String>()] = ret;
                 else
                     throw new VMException("invalid variable setting", headAtom);
             }
@@ -86,11 +86,11 @@ namespace Eugine
             Dictionary<String, SValue> ret = new Dictionary<String, SValue>();
             foreach (var v in values)
             {
-                var c = v.Evaluate(env).GetValue<List<SValue>>();
+                var c = v.Evaluate(env).Get<List<SValue>>();
                 var key = c[0] as SString;
                 if (key == null) throw new VMException("key must be string", headAtom);
 
-                ret[key.GetValue<String>()] = c[1];
+                ret[key.Get<String>()] = c[1];
             }
 
             return new SDict(ret);
@@ -144,8 +144,8 @@ namespace Eugine
                     var key = this.keys[i].Evaluate(env) as SString;
                     if (key == null) throw new VMException("it only take a string as the key", headAtom);
 
-                    var d = dict.GetValue<Dictionary<String, SValue>>();
-                    var k = key.GetValue<String>();
+                    var d = dict.Get<Dictionary<String, SValue>>();
+                    var k = key.Get<String>();
 
                     if (!d.ContainsKey(k)) d[k] = new SNull();
                     d[k].RefDict = d;
@@ -159,8 +159,8 @@ namespace Eugine
                     var index = this.keys[i].Evaluate(env) as SNumber;
                     if (index == null) throw new VMException("it only take a number as the index", headAtom);
 
-                    var l = dict.GetValue<List<SValue>>();
-                    var idx = (int)index.GetValue<Decimal>();
+                    var l = dict.Get<List<SValue>>();
+                    var idx = (int)index.Get<Decimal>();
 
                     if (idx >= l.Count) throw new VMException("index out of range", headAtom);
 
@@ -214,9 +214,9 @@ namespace Eugine
                 throw new VMException("it only accept numbers as arguments", headAtom);
 
             List<SValue> ret = new List<SValue>();
-            for (var i = start.GetValue<Decimal>();
-                i < end.GetValue<Decimal>();
-                i += interval.GetValue<Decimal>()) ret.Add(new SNumber(i));
+            for (var i = start.Get<Decimal>();
+                i < end.Get<Decimal>();
+                i += interval.Get<Decimal>()) ret.Add(new SNumber(i));
 
             return new SList(ret);
         }

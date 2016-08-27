@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Eugine
@@ -22,7 +23,7 @@ namespace Eugine
             var msg = argument.Evaluate(env) as SString;
             if (msg == null) throw new VMException("message must be a string", headAtom);
 
-            throw new VMException(msg.GetValue<String>(), headAtom);
+            throw new VMException(msg.Get<String>(), headAtom);
         }
     }
 
@@ -48,13 +49,13 @@ namespace Eugine
                     SString subStr = subObj as SString;
 
                     if (arguments.Count == 2)
-                        return new SString(subStr.GetValue<string>().Substring(
-                            (int)arguments[1].GetValue<Decimal>()
+                        return new SString(subStr.Get<string>().Substring(
+                            (int)arguments[1].Get<Decimal>()
                         ));
                     else
-                        return new SString(subStr.GetValue<string>().Substring(
-                            (int)arguments[1].GetValue<Decimal>(),
-                            (int)arguments[2].GetValue<Decimal>()
+                        return new SString(subStr.Get<string>().Substring(
+                            (int)arguments[1].Get<Decimal>(),
+                            (int)arguments[2].Get<Decimal>()
                         ));
 
                 }
@@ -62,13 +63,13 @@ namespace Eugine
                 {
                     SList subList = subObj as SList;
                     if (arguments.Count == 2)
-                        return new SList(subList.GetValue<List<SValue>>().Skip(
-                            (int)arguments[1].GetValue<Decimal>()
+                        return new SList(subList.Get<List<SValue>>().Skip(
+                            (int)arguments[1].Get<Decimal>()
                         ).ToList());
                     else
-                        return new SList(subList.GetValue<List<SValue>>().Skip(
-                            (int)arguments[1].GetValue<Decimal>()).Take(
-                            (int)arguments[2].GetValue<Decimal>()
+                        return new SList(subList.Get<List<SValue>>().Skip(
+                            (int)arguments[1].Get<Decimal>()).Take(
+                            (int)arguments[2].Get<Decimal>()
                         ).ToList());
 
                 }
@@ -103,23 +104,23 @@ namespace Eugine
             string key = "";
 
             if (idx is SNumber)
-                index = (int)idx.GetValue<Decimal>();
+                index = (int)idx.Get<Decimal>();
             else if (idx is SString)
-                key = idx.GetValue<String>();
+                key = idx.Get<String>();
             else
                 throw new VMException("the second argument must a number or a string", headAtom);
             
             if (subObj is SString)
-                return new SString(subObj.GetValue<String>().Remove(index, 1));
+                return new SString(subObj.Get<String>().Remove(index, 1));
             else if (subObj is SList)
             {
-                List<SValue> subList = subObj.GetValue<List<SValue>>();
+                List<SValue> subList = subObj.Get<List<SValue>>();
                 subList.RemoveAt(index);
                 return subObj;
             }
             else if (subObj is SDict)
             {
-                Dictionary<string, SValue> dict = subObj.GetValue<Dictionary<string, SValue>>();
+                Dictionary<string, SValue> dict = subObj.Get<Dictionary<string, SValue>>();
                 dict.Remove(key);
                 return subObj;
             }
@@ -145,16 +146,16 @@ namespace Eugine
         {
             if (num is SNumber)
             {
-                var n = num.GetValue<Decimal>();
+                var n = num.Get<Decimal>();
                 if (convertChr)
                     return new SString(((char)n).ToString());
                 else
                     return new SString(n.ToString());
             }
             else if (num is SBool)
-                return new SString(num.GetValue<bool>().ToString());
+                return new SString(num.Get<bool>().ToString());
             else if (num is SList)
-                return new SList((num as SList).GetValue<List<SValue>>().Select(n => convert(n)).ToList());
+                return new SList((num as SList).Get<List<SValue>>().Select(n => convert(n)).ToList());
             else
                 return num;
         }
@@ -182,7 +183,7 @@ namespace Eugine
         {
             if (str is SString)
             {
-                var s = str.GetValue<String>();
+                var s = str.Get<String>();
                 if (convertAsc && s.Length >= 1)
                     return new SNumber(s[0]);
                 else
@@ -195,7 +196,7 @@ namespace Eugine
                 }
             }
             else if (str is SList)
-                return new SList((str as SList).GetValue<List<SValue>>().Select(n => convert(n)).ToList());
+                return new SList((str as SList).Get<List<SValue>>().Select(n => convert(n)).ToList());
             else
                 return str;
         }
@@ -229,24 +230,24 @@ namespace Eugine
             List<string> delims = new List<string>();
 
             if (_delim is SString)
-                delims.Add(_delim.GetValue<String>());
+                delims.Add(_delim.Get<String>());
             else if (_delim is SList)
-                _delim.GetValue<List<SValue>>().ForEach(v =>
+                _delim.Get<List<SValue>>().ForEach(v =>
                 {
                     var _v = v.Evaluate(env) as SString;
-                    if (_v != null) delims.Add(_v.GetValue<String>());
+                    if (_v != null) delims.Add(_v.Get<String>());
                 });
             else
                 throw new VMException("the second argument must be a string or a list of strings", headAtom);
 
             if (delims.Count > 0)
             {
-                var ret = text.GetValue<String>().Split(delims.ToArray(), StringSplitOptions.RemoveEmptyEntries);
+                var ret = text.Get<String>().Split(delims.ToArray(), StringSplitOptions.RemoveEmptyEntries);
                 return new SList(ret.Select(r => (SValue)(new SString(r))).ToList());
             }
             else
             {
-                return new SList(text.GetValue<String>().ToCharArray()
+                return new SList(text.Get<String>().ToCharArray()
                     .Select(c => (SValue)(new SString(c.ToString()))).ToList());
             }
         }
@@ -268,9 +269,9 @@ namespace Eugine
            
             SValue lenValue = argument.Evaluate(env);
             if (lenValue is SString)
-                return new SNumber(lenValue.GetValue<string>().Length);
+                return new SNumber(lenValue.Get<string>().Length);
             else if (lenValue is SList)
-                return new SNumber(lenValue.GetValue<List<SValue>>().Count);
+                return new SNumber(lenValue.Get<List<SValue>>().Count);
             else
                 return new SNumber(0);
         }
@@ -302,11 +303,11 @@ namespace Eugine
                 if (e == null) throw new VMException("the second argument must be a dict if provided", headAtom);
 
                 env = new ExecEnvironment();
-                foreach (var kv in e.GetValue<Dictionary<string, SValue>>()) env[kv.Key] = kv.Value;
+                foreach (var kv in e.Get<Dictionary<string, SValue>>()) env[kv.Key] = kv.Value;
             }
 
             var p = new Parser();
-            var s = p.Parse(text.GetValue<String>(), "", "<eval>");
+            var s = p.Parse(text.Get<String>(), "", "<eval>");
             return SExpression.Cast(s).Evaluate(env);
         }
     }
@@ -327,7 +328,7 @@ namespace Eugine
 
             SValue lenValue = dict.Evaluate(env);
             if (lenValue is SDict)
-                return new SList((from k in lenValue.GetValue<Dictionary<string, SValue>>().Keys.ToList()
+                return new SList((from k in lenValue.Get<Dictionary<string, SValue>>().Keys.ToList()
                                  select (SValue)new SString(k)).ToList());
             else
                 throw new VMException("it only take a dict as the argument", headAtom);
@@ -352,11 +353,11 @@ namespace Eugine
             if (re is SList)
                 return ("(" +
                     String.Join(" ",
-                        from v in re.GetValue<List<SValue>>()
+                        from v in re.Get<List<SValue>>()
                         select printSValue(v.Evaluate(env), env, padding)) + ")");
             else if (re is SDict)
                 return ("\n" + "(".PadLeft(padding - 1) + "\n" + String.Join("\n",
-                    re.GetValue<Dictionary<String, SValue>>().Select(kv =>
+                    re.Get<Dictionary<String, SValue>>().Select(kv =>
                         "".PadLeft(padding) + kv.Key + "=" + printSValue(kv.Value.Evaluate(env), env, padding + 2)
                     )) + "\n" + ")".PadLeft(padding - 1));
             else if (re is SNull)
@@ -396,7 +397,7 @@ namespace Eugine
 
             if (listObj is SList)
             {
-                var list = listObj.GetValue<List<SValue>>();
+                var list = listObj.Get<List<SValue>>();
                 return list.Count > 0 ? list[0] : new SNull();
             }
             else
@@ -420,9 +421,116 @@ namespace Eugine
             var listObj = this.list.Evaluate(env);
 
             if (listObj is SList)
-                return new SList(listObj.GetValue<List<SValue>>().Skip(1).ToList());
+                return new SList(listObj.Get<List<SValue>>().Skip(1).ToList());
             else
                 throw new VMException("it can only get the tail of a list", headAtom);
+        }
+    }
+
+    class SERegex : SExpression
+    {
+        private SExpression re;
+        private SExpression option;
+
+        public SERegex(SExprAtomic ha, SExprComp c) : base(ha, c)
+        {
+            if (c.Atomics.Count > 0)
+            {
+                re = SExpression.Cast(c.Atomics.Pop());
+                if (c.Atomics.Count > 0)
+                    option = SExpression.Cast(c.Atomics.Pop());
+                else
+                    option = new SString("None");
+            }
+            else
+                throw new VMException("it takes 1 or 2 arguments", ha);
+        }
+
+        public override SValue Evaluate(ExecEnvironment env)
+        {
+            var re = this.re.Evaluate(env) as SString;
+            if (re == null) throw new VMException("the first argument must be a string", headAtom);
+
+            var option = this.option.Evaluate(env) as SString;
+            if (option == null) throw new VMException("the second argument must be a string", headAtom);
+
+            RegexOptions ro = RegexOptions.None;
+            Enum.TryParse(option.Get<String>(), true, out ro);
+
+            return new SValue(new Regex(re.Get<String>(), ro));
+        }
+    }
+
+    class SERegexMatch : SExpression
+    {
+        private SExpression regex;
+        private SExpression text;
+        private SExpression start;
+        private SExpression length;
+
+        public SERegexMatch(SExprAtomic ha, SExprComp c) : base(ha, c)
+        {
+            if (c.Atomics.Count > 1)
+            {
+                regex = SExpression.Cast(c.Atomics.Pop());
+                text = SExpression.Cast(c.Atomics.Pop());
+
+                if (c.Atomics.Count > 0)
+                    start = SExpression.Cast(c.Atomics.Pop());
+                else
+                    start = new SNumber(0);
+
+                if (c.Atomics.Count > 0)
+                    length = SExpression.Cast(c.Atomics.Pop());
+                else
+                    length = new SNumber(-1);
+            }
+            else
+                throw new VMException("it takes at least 2 arguments", ha);
+        }
+
+        public override SValue Evaluate(ExecEnvironment env)
+        {
+            var regex = this.regex.Evaluate(env);
+            if (!(regex.Underlying is Regex))
+                throw new VMException("the first argument must be a regex object", headAtom);
+
+            var text = this.text.Evaluate(env) as SString;
+            if (text == null) throw new VMException("the second argument must be a string", headAtom);
+
+            var start = this.start.Evaluate(env) as SNumber;
+            if (start == null) throw new VMException("the start position must be a number", headAtom);
+
+            var length = this.length.Evaluate(env) as SNumber;
+            if (length == null) throw new VMException("the length must be a number", headAtom);
+            var len = (int)length.Get<Decimal>();
+            if (len == -1) len = text.Get<String>().Length - (int)start.Get<Decimal>();
+
+            Regex re = regex.Underlying as Regex;
+
+            try {
+                Match m = re.Match(text.Get<String>(), (int)start.Get<Decimal>(), len);
+                var capturedGroups = new Dictionary<string, SValue>();
+
+                foreach (string gn in re.GetGroupNames())
+                {
+                    if (m.Groups[gn].Success && m.Groups[gn].Captures.Count > 0)
+                    {
+                        capturedGroups[gn] = new SDict(new Dictionary<string, SValue>()
+                        {
+                            { "capture", new SString(m.Groups[gn].Value) },
+                            { "index", new SNumber(m.Groups[gn].Index) },
+                            { "length", new SNumber(m.Groups[gn].Length) },
+                        });
+                    }
+                }
+
+                return new SDict(capturedGroups);
+            }
+            catch
+            {
+                throw new VMException("error ocurred when matching", headAtom);
+            }
         }
     }
 }

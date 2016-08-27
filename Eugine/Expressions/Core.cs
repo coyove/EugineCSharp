@@ -31,7 +31,7 @@ namespace Eugine
 
                 if (v1.Is<Decimal>() && v2.Is<Decimal>())
                 {
-                    var sgn = Math.Sign(v1.GetValue<Decimal>() - v2.GetValue<Decimal>());
+                    var sgn = Math.Sign(v1.Get<Decimal>() - v2.Get<Decimal>());
                     if (!trueSigns.Contains(sgn))
                         return false;
                 }
@@ -53,7 +53,7 @@ namespace Eugine
                 var v1 = arguments[i].Evaluate(env);
                 if (v1 is SBool)
                 {
-                    var v = v1.GetValue<bool>();
+                    var v = v1.Get<bool>();
                     if (andor == "and")
                         lastState = lastState && v;
                     else
@@ -146,7 +146,7 @@ namespace Eugine
                         var r = arguments[0].Evaluate(env);
                         if (!r.Is<Decimal>()) throw new VMException("it only apply to numbers", headAtom);
 
-                        var host = r.GetValue<Decimal>();
+                        var host = r.Get<Decimal>();
                         for (var i = 1; i < arguments.Count(); i++)
                         {
                             var v1 = arguments[i].Evaluate(env);
@@ -155,11 +155,11 @@ namespace Eugine
                             {
                                 switch (func)
                                 {
-                                    case "-": host -= v1.GetValue<Decimal>(); break;
-                                    case "*": host *= v1.GetValue<Decimal>(); break;
+                                    case "-": host -= v1.Get<Decimal>(); break;
+                                    case "*": host *= v1.Get<Decimal>(); break;
                                     case "/":
                                     case "%":
-                                        Decimal tmp = v1.GetValue<Decimal>();
+                                        Decimal tmp = v1.Get<Decimal>();
                                         if (tmp != 0)
                                         {
                                             if (func == "/")
@@ -210,9 +210,9 @@ namespace Eugine
             Decimal n = 0;
 
             if (arg is SNumber)
-                n = arg.GetValue<Decimal>();
+                n = arg.Get<Decimal>();
             else if (arg is SBool)
-                n = arg.GetValue<bool>() ? 1 : 0;
+                n = arg.Get<bool>() ? 1 : 0;
 
             switch (func)
             {

@@ -48,7 +48,7 @@ namespace Eugine
             if (_list is SList)
             {
                 list = _list as SList;
-                values = list.GetValue<List<SValue>>();
+                values = list.Get<List<SValue>>();
                 if (values.Count == 0)
                 {
                     whileLoop = true;
@@ -64,16 +64,16 @@ namespace Eugine
                 throw new VMException("the first argument must be a list or a bool", headAtom);
             
             if (whileLoop)
-                while (condAlwaysTrue || this.list.Evaluate(env).GetValue<bool>())
+                while (condAlwaysTrue || this.list.Evaluate(env).Get<bool>())
                 {
                     var ret = execLoop(body, new SNull(), 0);
-                    if (ret.Is<bool>() && !ret.GetValue<bool>()) break;
+                    if (ret.Is<bool>() && !ret.Get<bool>()) break;
                 }
             else
                 for (var i = 0; i < values.Count; i++)
                 {
                     var ret = execLoop(body, values[i], i);
-                    if (ret.Is<bool>() && !ret.GetValue<bool>()) break;
+                    if (ret.Is<bool>() && !ret.Get<bool>()) break;
                 }
             
 
@@ -99,7 +99,7 @@ namespace Eugine
 
         public override SValue Evaluate(ExecEnvironment env)
         {
-            if (condition.Evaluate(env).GetValue<bool>())
+            if (condition.Evaluate(env).Get<bool>())
                 return trueBranch.Evaluate(env);
             else
             {
@@ -145,11 +145,11 @@ namespace Eugine
 
         public override SValue Evaluate(ExecEnvironment env)
         {
-            var cond = condition.Evaluate(env).GetValue<object>();
+            var cond = condition.Evaluate(env).Get<object>();
 
             foreach (var b in branches)
             {
-                if (b.Item1.Evaluate(env).GetValue<object>().Equals(cond))
+                if (b.Item1.Evaluate(env).Get<object>().Equals(cond))
                     return b.Item2.Evaluate(env);
             }
 
