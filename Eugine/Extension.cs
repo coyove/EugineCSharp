@@ -77,7 +77,7 @@ namespace Eugine
 
     class CallsEnvironment : Dictionary<string, Func<SExprAtomic, SExprComp, SExpression>> { }
 
-    class ExecEnvironment : Dictionary<string, SExpression>
+    class ExecEnvironment : Dictionary<string, SValue>
     {
         public ExecEnvironment ParentEnv;
 
@@ -96,7 +96,7 @@ namespace Eugine
             }
         }
 
-        public SExpression this[string key]
+        public SValue this[string key]
         {
             get
             {

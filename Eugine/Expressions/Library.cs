@@ -100,32 +100,22 @@ namespace Eugine
         {
             var subObj = host.Evaluate(env);
             var idx = this.index.Evaluate(env);
-            int index = 0;
-            string key = "";
+            if (subObj.Immutable) throw new VMException("variable is immutable", headAtom);
 
-            if (idx is SNumber)
-                index = (int)idx.Get<Decimal>();
-            else if (idx is SString)
-                key = idx.Get<String>();
-            else
-                throw new VMException("the second argument must a number or a string", headAtom);
-            
-            if (subObj is SString)
-                return new SString(subObj.Get<String>().Remove(index, 1));
-            else if (subObj is SList)
+            if (idx is SNumber && subObj is SList)
             {
                 List<SValue> subList = subObj.Get<List<SValue>>();
-                subList.RemoveAt(index);
+                subList.RemoveAt((int)idx.Get<Decimal>());
                 return subObj;
             }
-            else if (subObj is SDict)
+            else if (idx is SString && subObj is SDict)
             {
                 Dictionary<string, SValue> dict = subObj.Get<Dictionary<string, SValue>>();
-                dict.Remove(key);
+                dict.Remove(idx.Get<String>());
                 return subObj;
             }
             else
-                throw new VMException("the first argument must be a string, a list or a dict", headAtom);
+                throw new VMException("deleting from a dict or a list requires a string key or a number index", headAtom);
         }
     }
 
@@ -457,7 +447,7 @@ namespace Eugine
             RegexOptions ro = RegexOptions.None;
             Enum.TryParse(option.Get<String>(), true, out ro);
 
-            return new SValue(new Regex(re.Get<String>(), ro));
+            return new SObject(new Regex(re.Get<String>(), ro));
         }
     }
 

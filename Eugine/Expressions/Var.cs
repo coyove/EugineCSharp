@@ -8,42 +8,58 @@ namespace Eugine
 {
     class SESet : SExpression
     {
-        private string vname;
+        private string varName;
         private SExpression nameExpr;
-        private SExpression vvalue;
+        private SExpression varValue;
+        private bool makeImmutable;
 
-        public SESet(SExprAtomic ha, SExprComp c) : base(ha, c)
+        public SESet(SExprAtomic ha, SExprComp c, bool imm) : base(ha, c)
         {
             if (c.Atomics.Count < 2) throw new VMException("it takes 2 arguments", ha);
 
             var n = c.Atomics.Pop();
             if (n is SExprAtomic && (n as SExprAtomic).Token.TType == SToken.TokenType.ATOMIC)
-                vname = (string)(n as SExprAtomic).Token.TValue;
+                varName = (string)(n as SExprAtomic).Token.TValue;
             else
                 nameExpr = SExpression.Cast(n);
 
-            vvalue = SExpression.Cast(c.Atomics.Pop());
+            varValue = SExpression.Cast(c.Atomics.Pop());
+            makeImmutable = imm;
         }
 
         public override SValue Evaluate(ExecEnvironment env)
         {
-            var ret = vvalue.Evaluate(env);
+            SValue v = varValue.Evaluate(env);
+            SValue ret = v;
+
+            if (!makeImmutable && v.Immutable)
+            {
+                ret = v.Clone();
+                ret.Immutable = false;
+            }
+
+            if (makeImmutable) ret.Immutable = true;
+            
             ret.RefDict = null;
             ret.RefList = null;
 
             if (nameExpr == null)
             {
-                env[vname] = ret;
+                if (env.ContainsKey(varName) && env[varName].Immutable)
+                    throw new VMException("variable is immutable", headAtom);
+
+                env[varName] = ret;
             }
             else
             {
                 var n = nameExpr.Evaluate(env);
+                if (n.RefDict?.Immutable == true || n.RefList?.Immutable == true)
+                    throw new VMException("variable is immutable", headAtom);
+
                 if (n.RefDict != null)
-                    n.RefDict[n.RefDictKey] = ret;
+                    n.RefDict.Get<Dictionary<string, SValue>>()[n.RefDictKey] = ret;
                 else if (n.RefList != null)
-                    n.RefList[n.RefListIndex] = ret;
-                else if (n is SString)
-                    env[n.Get<String>()] = ret;
+                    n.RefList.Get<List<SValue>>()[n.RefListIndex] = ret;
                 else
                     throw new VMException("invalid variable setting", headAtom);
             }
@@ -148,7 +164,8 @@ namespace Eugine
                     var k = key.Get<String>();
 
                     if (!d.ContainsKey(k)) d[k] = new SNull();
-                    d[k].RefDict = d;
+
+                    d[k].RefDict = dict as SDict;
                     d[k].RefDictKey = k;
                     d[k].RefList = null;
 
@@ -164,7 +181,7 @@ namespace Eugine
 
                     if (idx >= l.Count) throw new VMException("index out of range", headAtom);
 
-                    l[idx].RefList = l;
+                    l[idx].RefList = dict as SList;
                     l[idx].RefListIndex = idx;
                     l[idx].RefDict = null;
 

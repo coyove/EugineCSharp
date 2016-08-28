@@ -12,7 +12,7 @@ namespace Eugine
         private List<SExpression> argumentExprs;
         private string func;
 
-        public SEMultiCore(string f, SExprAtomic ha, SExprComp c) : base(ha, c)
+        public SEMultiCore(SExprAtomic ha, SExprComp c, string f) : base(ha, c)
         {
             argumentExprs = (from a in c.Atomics select SExpression.Cast(a)).ToList();
             func = f;
@@ -195,7 +195,7 @@ namespace Eugine
         private SExpression argument;
         private string func;
 
-        public SESingleCore(string f, SExprAtomic ha, SExprComp c) : base(ha, c)
+        public SESingleCore(SExprAtomic ha, SExprComp c, string f) : base(ha, c)
         {
             argument = c.Atomics.Count > 0 ? SExpression.Cast(c.Atomics.Pop()) : null;
             func = f;
@@ -272,7 +272,7 @@ namespace Eugine
             return ret;
         }
 
-        public SEIncDec(SExprAtomic ha, SExprComp c, bool i) : base(ha, SEIncDec.wrap(ha, c, i))
+        public SEIncDec(SExprAtomic ha, SExprComp c, bool i) : base(ha, SEIncDec.wrap(ha, c, i), false)
         { }
     }
 
@@ -294,7 +294,7 @@ namespace Eugine
         }
 
         public SESelfOperator(SExprAtomic ha, SExprComp c, string op) 
-            : base(ha, SESelfOperator.wrap(ha, c, op))
+            : base(ha, SESelfOperator.wrap(ha, c, op), false)
         { }
     }
 }

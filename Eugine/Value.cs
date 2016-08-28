@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,8 +27,9 @@ namespace Eugine
         public static CallsEnvironment KeywordsLookup = new CallsEnvironment
         {
             { "exit",   (h, c) => new SEExit(h, c) },
-            { "set",    (h, c) => new SESet(h, c) },
-            { "=",      (h, c) => new SESet(h, c) },
+            { "set",    (h, c) => new SESet(h, c, false) },
+            { "const",  (h, c) => new SESet(h, c, true) },
+            { "=",      (h, c) => new SESet(h, c, false) },
             { "if",     (h, c) => new SEIf(h, c) },
             { "case",   (h, c) => new SECase(h, c) },
             { "->",     (h, c) => new SEChain(c) },
@@ -44,30 +46,28 @@ namespace Eugine
             { "range",  (h, c) => new SERange(h, c) },
             { "for",    (h, c) => new SEFor(h, c) },
             { "loop",   (h, c) => new SEFor(h, c) },
-            { "<",      (h, c) => new SEMultiCore("<", h, c)},
-            { "<=",     (h, c) => new SEMultiCore("<=", h, c)},
-            { ">",      (h, c) => new SEMultiCore(">", h, c)},
-            { ">=",     (h, c) => new SEMultiCore(">=", h, c)},
-            { "==",     (h, c) => new SEMultiCore("==", h, c)},
-            { "<>",     (h, c) => new SEMultiCore("<>", h, c)},
-            { "!=",     (h, c) => new SEMultiCore("<>", h, c)},
-            { "+",      (h, c) => new SEMultiCore("+", h, c)},
-            { "-",      (h, c) => new SEMultiCore("-", h, c)},
+            { "<",      (h, c) => new SEMultiCore(h, c, "<") },
+            { "<=",     (h, c) => new SEMultiCore(h, c, "<=") },
+            { ">",      (h, c) => new SEMultiCore(h, c, ">") },
+            { ">=",     (h, c) => new SEMultiCore(h, c, ">=") },
+            { "==",     (h, c) => new SEMultiCore(h, c, "==") },
+            { "<>",     (h, c) => new SEMultiCore(h, c, "<>") },
+            { "!=",     (h, c) => new SEMultiCore(h, c, "<>") },
+            { "+",      (h, c) => new SEMultiCore(h, c, "+") },
+            { "-",      (h, c) => new SEMultiCore(h, c, "-") },
+            { "*",      (h, c) => new SEMultiCore(h, c, "*") },
+            { "/",      (h, c) => new SEMultiCore(h, c, "/") },
+            { "%",      (h, c) => new SEMultiCore(h, c, "%") },
+            { "&&",     (h, c) => new SEMultiCore(h, c, "&&") },
+            { "||",     (h, c) => new SEMultiCore(h, c, "||") },
+            { "and",    (h, c) => new SEMultiCore(h, c, "&&") },
+            { "or",     (h, c) => new SEMultiCore(h, c, "||") },
             { "++",     (h, c) => new SEIncDec(h, c, true) },
             { "--",     (h, c) => new SEIncDec(h, c, false) },
-            { "*",      (h, c) => new SEMultiCore("*", h, c)},
-            { "/",      (h, c) => new SEMultiCore("/", h, c)},
-            { "%",      (h, c) => new SEMultiCore("%", h, c)},
             { "+=",     (h, c) => new SESelfOperator(h, c, "+") },
             { "-=",     (h, c) => new SESelfOperator(h, c, "-") },
             { "*=",     (h, c) => new SESelfOperator(h, c, "*") },
             { "/=",     (h, c) => new SESelfOperator(h, c, "/") },
-            { "&&",     (h, c) => new SEMultiCore("&&", h, c)},
-            { "||",     (h, c) => new SEMultiCore("||", h, c)},
-            { "!",      (h, c) => new SESingleCore("not", h, c)},
-            { "not",    (h, c) => new SESingleCore("not", h, c)},
-            { "and",    (h, c) => new SEMultiCore("&&", h, c)},
-            { "or",     (h, c) => new SEMultiCore("||", h, c)},
             { "print", 	(h, c) => new SEPrint(h, c, "") },
             { "println",(h, c) => new SEPrint(h, c, Environment.NewLine) },
             { "str",    (h, c) => new SEStr(h, c, false) },
@@ -81,18 +81,20 @@ namespace Eugine
             { "type",   (h, c) => new SEType(h, c) },
             { "eval",   (h, c) => new SEEval(h, c) },
             { "split",  (h, c) => new SESplit(h, c) },
-            { "sin",    (h, c) => new SESingleCore("sin", h, c) },
-            { "cos",    (h, c) => new SESingleCore("cos", h, c) },
-            { "tan",    (h, c) => new SESingleCore("tan", h, c) },
-            { "asin",   (h, c) => new SESingleCore("asin", h, c) },
-            { "acos",   (h, c) => new SESingleCore("acos", h, c) },
-            { "atan",   (h, c) => new SESingleCore("atan", h, c) },
-            { "sqrt",   (h, c) => new SESingleCore("sqrt", h, c) },
-            { "abs",    (h, c) => new SESingleCore("abs", h, c) },
-            { "round",  (h, c) => new SESingleCore("round", h, c) },
-            { "floor",  (h, c) => new SESingleCore("floor", h, c) },
-            { "random", (h, c) => new SESingleCore("random", h, c) },
-            { "time",   (h, c) => new SESingleCore("time", h, c) },
+            { "!",      (h, c) => new SESingleCore(h, c, "not") },
+            { "not",    (h, c) => new SESingleCore(h, c, "not") },
+            { "sin",    (h, c) => new SESingleCore(h, c, "sin") },
+            { "cos",    (h, c) => new SESingleCore(h, c, "cos") },
+            { "tan",    (h, c) => new SESingleCore(h, c, "tan") },
+            { "abs",    (h, c) => new SESingleCore(h, c, "abs") },
+            { "asin",   (h, c) => new SESingleCore(h, c, "asin") },
+            { "acos",   (h, c) => new SESingleCore(h, c, "acos") },
+            { "atan",   (h, c) => new SESingleCore(h, c, "atan") },
+            { "sqrt",   (h, c) => new SESingleCore(h, c, "sqrt") },
+            { "time",   (h, c) => new SESingleCore(h, c, "time") },
+            { "round",  (h, c) => new SESingleCore(h, c, "round") },
+            { "floor",  (h, c) => new SESingleCore(h, c, "floor") },
+            { "random", (h, c) => new SESingleCore(h, c, "random") },
             { "explode",(h, c) => new SEExplode(h, c) },
             { "regex",  (h, c) => new SERegex(h, c) },
             { "match",  (h, c) => new SERegexMatch(h, c) },
@@ -195,17 +197,27 @@ namespace Eugine
         }
     }
 
-    class SValue : SExpression
+    abstract class SValue : SExpression
     {
-        public Dictionary<string, SValue> RefDict;
+        public SDict RefDict;
         public string RefDictKey;
 
-        public List<SValue> RefList;
+        public SList RefList;
         public int RefListIndex;
+
+        public object Underlying;
+        public bool Immutable;
 
         public SValue(object underlying)
         {
             Underlying = underlying;
+            Immutable = false;
+        }
+
+        public SValue(object underlying, bool imm)
+        {
+            Underlying = underlying;
+            Immutable = imm;
         }
 
         public T Get<T>()
@@ -223,32 +235,89 @@ namespace Eugine
             return this;
         }
 
-        public readonly object Underlying;
+        // It clones the SValue, but not includes the object Underlaying
+        public abstract SValue Clone();
+
+        public static void CopyAttributes(SValue to, SValue from)
+        {
+            to.Immutable = from.Immutable;
+            to.RefDict = from.RefDict;
+            to.RefDictKey = from.RefDictKey;
+            to.RefList = from.RefList;
+            to.RefListIndex = from.RefListIndex;
+        }
+    }
+
+    class SObject : SValue
+    {
+        public SObject(object obj) : base(obj) { }
+
+        public override SValue Clone()
+        {
+            SObject ret = new SObject(Underlying);
+            SValue.CopyAttributes(ret, this);
+            return ret;
+        }
     }
 
     class SBool : SValue
     {
         public SBool(bool b): base(b) {}
+
+        public override SValue Clone()
+        {
+            SBool ret = new SBool((bool)Underlying);
+            SValue.CopyAttributes(ret, this);
+            return ret;
+        }
     }
 
     class SString : SValue
     {
         public SString(String str) : base(str) { }
+
+        public override SValue Clone()
+        {
+            SString ret = new SString((string)Underlying);
+            SValue.CopyAttributes(ret, this);
+            return ret;
+        }
     }
 
     class SNumber : SValue
     {
         public SNumber(Decimal num) : base(num) { }
+
+        public override SValue Clone()
+        {
+            SNumber ret = new SNumber((decimal)Underlying);
+            SValue.CopyAttributes(ret, this);
+            return ret;
+        }
     }
 
     class SList : SValue
     {
         public SList(List<SValue> list) : base(list) { }
+
+        public override SValue Clone()
+        {
+            SList ret = new SList((List<SValue>)Underlying);
+            SValue.CopyAttributes(ret, this);
+            return ret;
+        }
     }
 
     class SDict : SValue
     {
         public SDict(Dictionary<string, SValue> dict) : base(dict) { }
+
+        public override SValue Clone()
+        {
+            SDict ret = new SDict((Dictionary<string, SValue>)Underlying);
+            SValue.CopyAttributes(ret, this);
+            return ret;
+        }
     }
 
     class SExploded : SValue
@@ -259,11 +328,23 @@ namespace Eugine
         {
             Comps = list.Select(v => v).ToList();
         }
+
+        public override SValue Clone()
+        {
+            SExploded ret = new SExploded(Comps);
+            SValue.CopyAttributes(ret, this);
+            return ret;
+        }
     }
 
     class SNull : SValue
     {
         public SNull() : base(null) { }
+
+        public override SValue Clone()
+        {
+            return new SNull();
+        }
     }
 
     class SClosure : SValue
@@ -277,6 +358,13 @@ namespace Eugine
             InnerEnv = env;
             Arguments = args;
             Body = b;
+        }
+
+        public override SValue Clone()
+        {
+            SClosure ret = new SClosure(InnerEnv, Arguments, Body);
+            SValue.CopyAttributes(ret, this);
+            return ret;
         }
     }
     
