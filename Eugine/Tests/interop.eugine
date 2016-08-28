@@ -1,0 +1,27 @@
+(const CS:Int32 "System.Int32")
+(const CS:String "System.String")
+(const CS:Char "System.Char")
+(const CS:Object "System.Object")
+
+([() => (chain
+
+(set DateTime (.net-type "System.DateTime"))
+(set today (.net-static-method DateTime @get_Today))
+(set formats (.net-static-method today @GetDateTimeFormats))
+
+(loop (sub formats 0 20) [(format) => (
+	(println [(.net-static-method DateTime @get_Now) .net-static-method @ToString format])
+)])
+
+(set lines (.net-static-method (.net-type "System.IO.File") @ReadAllLines (+ ~path "interop.eugine")))
+(loop lines [(line) => (println line)])
+
+(set expr-comp (.net-new (.net-type "Eugine.SExprComp")))
+(set atomics (.net-get-member expr-comp @Atomics))
+(set atomics (.net-static-method (head atomics) @GetHashCode))
+
+(set #sb (.net-new (.net-type "System.Text.StringBuilder") "hello"))
+(.net-static-method #sb @AppendFormat "\n{0}, {1}" "zzz" (CS:Object atomics))
+(println (.net-static-method #sb @ToString))
+
+)] ())
