@@ -46,6 +46,7 @@
   <ItemGroup>
     <Compile Include="Expressions\Call.cs" />
     <Compile Include="Expressions\Core.cs" />
+    <Compile Include="Expressions\Interop.cs" />
     <Compile Include="Extension.cs" />
     <Compile Include="Expressions\Flow.cs" />
     <Compile Include="Expressions\Var.cs" />

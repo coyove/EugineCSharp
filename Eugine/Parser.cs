@@ -52,7 +52,6 @@ namespace Eugine
     class SExprComp: SExpr
     {
         public List<SExpr> Atomics = new List<SExpr>();
-        public string Namespace;
 
         public override SExpr Clone()
         {
@@ -238,12 +237,12 @@ namespace Eugine
 
         public ExecEnvironment DefaultEnvironment = new ExecEnvironment()
         {
-            { "null", new SNull() },
-            { "#nil", new SNull() },
-            { "true", new SBool(true) },
-            { "false", new SBool(false) },
-            { "#t", new SBool(true) },
-            { "#f", new SBool(false) }
+            { "null", new SNull(true) },
+            { "#nil", new SNull(true) },
+            { "true", new SBool(true, true) },
+            { "false", new SBool(false, true) },
+            { "#t", new SBool(true, true) },
+            { "#f", new SBool(false, true) }
         };
 
         public object ExecuteString(string code, ExecEnvironment ee)

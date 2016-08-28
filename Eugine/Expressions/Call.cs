@@ -56,28 +56,6 @@ namespace Eugine
         { }
     }
 
-    class SEMake : SExpression
-    {
-        private List<SExpression> arguments;
-        private SExpression obj;
-
-        public SEMake(SExprAtomic ha, SExprComp c) : base(ha, c)
-        {
-            if (c.Atomics.Count < 1) throw new VMException("it takes at least 1 argument", ha);
-
-            obj = SExpression.Cast(c.Atomics.Pop());
-            arguments = c.Atomics.Select(a => SExpression.Cast(a)).ToList();
-        }
-
-        public override SValue Evaluate(ExecEnvironment env)
-        {
-            var obj = Type.GetType((this.obj.Evaluate(env) as SString)?.Get<String>());
-            if (obj == null) throw new VMException("cannot get type", headAtom);
-
-            return new SNull();
-        }
-    }
-
     class SELambda : SExpression
     {
         private SExpression body;

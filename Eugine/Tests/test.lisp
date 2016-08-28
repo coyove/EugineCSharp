@@ -17,6 +17,6 @@
 (println "\n== Others ==") 
 (~include "others.lisp")
 
-; (println "Benchmark") (include "bench.lisp")
+(~include "interop.eugine")
 
 (println "\nFinish tests in " (floor [(time 1) - start]) "ms")

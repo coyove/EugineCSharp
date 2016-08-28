@@ -98,10 +98,16 @@ namespace Eugine
             { "explode",(h, c) => new SEExplode(h, c) },
             { "regex",  (h, c) => new SERegex(h, c) },
             { "match",  (h, c) => new SERegexMatch(h, c) },
+
+            { ".net-type",              (h, c) => new SEInteropGetType(h, c) },
+            { ".net-static-method",     (h, c) => new SEInteropInvokeStaticMethod(h, c) },
+            { ".net-get-member",        (h, c) => new SEInteropGetSetMember(h, c) },
+            { ".net-new",               (h, c) => new SEInteropNew(h, c) },
         };
 
         public static List<SValue> EvalSExpressions(List<SExpression> arguments, ExecEnvironment env)
         {
+
             List<SValue> ret = new List<SValue>();
             foreach (var e in arguments)
             {
@@ -263,6 +269,7 @@ namespace Eugine
     class SBool : SValue
     {
         public SBool(bool b): base(b) {}
+        public SBool(bool b, bool imm) : base(b, imm) { }
 
         public override SValue Clone()
         {
@@ -275,6 +282,7 @@ namespace Eugine
     class SString : SValue
     {
         public SString(String str) : base(str) { }
+        public SString(String str, bool imm) : base(str, imm) { }
 
         public override SValue Clone()
         {
@@ -287,6 +295,7 @@ namespace Eugine
     class SNumber : SValue
     {
         public SNumber(Decimal num) : base(num) { }
+        public SNumber(Decimal num, bool imm) : base(num, imm) { }
 
         public override SValue Clone()
         {
@@ -340,6 +349,7 @@ namespace Eugine
     class SNull : SValue
     {
         public SNull() : base(null) { }
+        public SNull(bool imm) : base(null, imm) { }
 
         public override SValue Clone()
         {

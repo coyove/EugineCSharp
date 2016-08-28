@@ -241,24 +241,26 @@ namespace Eugine
 
     class SEVariable : SExpression
     {
-        private string vname;
+        private string varName;
 
         public SEVariable(string n, SExprAtomic ha, SExprComp c) : base(ha, c)
         {
-            vname = n;
+            varName = n;
         }
 
         public override SValue Evaluate(ExecEnvironment env)
         {
-            if (!env.ContainsKey(vname))
+            if (!env.ContainsKey(varName))
             {
-                SValue tmp = (vname.First() == '@') ? (SValue)new SString(vname.Substring(1)) : new SNull();
+                SValue tmp = (varName.First() == '@') ? (SValue)new SString(varName.Substring(1)) : new SNull();
 
-                env[vname] = tmp;
+                if (env.ContainsKey(varName)) return env[varName];
+
+                env[varName] = tmp;
                 return tmp;
             }
 
-            var imd = env[vname].Evaluate(env);
+            var imd = env[varName].Evaluate(env);
 
             if (imd is SClosure && (imd as SClosure).Arguments.Count == 0)
                 // it is a closure that accepts 0 arguments, so just directly evaluate it

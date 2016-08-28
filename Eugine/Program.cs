@@ -13,8 +13,6 @@ namespace Eugine
         {
             var vm = new EugineVM();
             vm.ExecuteFile("./tests/test.lisp", vm.DefaultEnvironment);
-
-
         }
     }
 }
