@@ -38,7 +38,7 @@
 ;========================================
 
 (set convert-weekday (lambda (i) (->
-	(case (i) 
+	(cond (i) 
 		(1 "Mon")
 		((/ 4 2) "Tue")
 		(3 "Wed")
@@ -102,3 +102,111 @@ HTTPS://google.com if you regard safe-browsing as important")
 ;; as long as the .NET regex engine is working properly, these should be correct too
 (assert [[(match re #regex-test-string) : "1" "capture"] == "www.google.com"] "regex test 1")
 (assert [[(match re #regex-test-string 40) : "0" "capture"] == "HTTPS://google.com"] "regex test 2")
+
+;========================================
+
+[lt = [(l r) => (> l r)]]
+[gte = [(l r) => (<= l r)]]
+
+(defun quick-sort (lst)
+	"Slowest quick sort using recursion"
+	(cond #t
+		([(len lst) == 0] (list))
+		([(len lst) == 1] (list (head lst)))
+		(_ (-> 
+			[#head = (head lst)]
+			[#tail = (tail lst)]
+			(+ (quick-sort (filter (lt #head) #tail))
+				#head 
+				(explode (quick-sort (filter (gte #head) #tail)))
+			)
+		))
+	)
+)
+
+(defun quick-sort-2 (arr) (->
+	"A bit faster"
+	[swap = [(a b) => (->
+		[tmp = [arr : a]]
+		[[arr : a] = [arr : b]]
+		[[arr : b] = tmp]
+	)]]
+
+	[sort = [(beg end) => (if [end > [beg + 1]] (->
+		[p = [arr : beg]] 
+		[l = [beg + 1]]
+		[r = end]
+
+	    (loop [l < r] [() => (
+	    	(if [[arr : l] <= p] 
+	    		[l ++]
+	        	(swap l [r --])
+	    	)
+		)])
+	    
+	    (swap [l --] beg)
+
+	    (sort beg l)
+	    (sort r end)
+	))]]
+
+	(sort 0 (len arr))
+	(arr)
+))
+
+(defun quick-sort-3 (arr) (->
+	"Got rid of recursion"
+	[swap = [(a b) => (->
+		[tmp = [arr : a]]
+		[[arr : a] = [arr : b]]
+		[[arr : b] = tmp]
+	)]]
+ 
+	[partition = [(l h) => (->
+		[x = [arr : h]]
+	    [i = [l - 1]]
+	 
+	    ;for (int j = l; j <= h- 1; j++)
+	    (loop (range l h) [(j) =>
+	    	(if [[arr : j] <= x] (swap [i ++] j))
+    	])
+	    
+	    (swap [i + 1] h)
+	    [i + 1]
+	)]]
+
+    ;int stack[ h - l + 1 ];
+    [h = [(len arr) - 1]]
+    [l = 0]
+    [stack = (range 0 (len arr))]
+    ;[loop (range 0 [[h - l] + 1]) [() => [stack += 0]]]
+ 
+    [[stack : 0] = l]
+    [[stack : 1] = h]
+    [top = 1] 
+ 	
+    (loop [top >= 0] [() => (->
+        [h = [stack : top]]
+        [top --]
+        [l = [stack : top]]
+        [top --]
+ 
+        [p = (partition l h)]
+ 
+        (if [[p - 1] > l] (->
+        	[[stack : [top ++]] = l]
+            [[stack : [top ++]] = [p - 1]]
+    	))
+ 
+        (if [[p + 1] < h] (->
+            [[stack : [top ++]] = [p + 1]]
+            [[stack : [top ++]] = h]
+        ))
+	)])
+
+	(arr)
+))
+
+(assert [(quick-sort (random-list 100)) deep-compare-list (range 0 100)] "Quick sort 1")
+(assert [(quick-sort-2 (random-list 100)) deep-compare-list (range 0 100)] "Quick sort 2")
+(assert [(quick-sort-3 (random-list 100)) deep-compare-list (range 0 100)] "Quick sort 3")

@@ -46,7 +46,7 @@ namespace Eugine
             if (nameExpr == null)
             {
                 if (env.ContainsKey(varName) && env[varName].Immutable)
-                    throw new VMException("variable is immutable", headAtom);
+                    throw new VMException(varName + ": variable is immutable", headAtom);
 
                 env[varName] = ret;
             }
@@ -54,7 +54,7 @@ namespace Eugine
             {
                 var n = nameExpr.Evaluate(env);
                 if (n.RefDict?.Immutable == true || n.RefList?.Immutable == true)
-                    throw new VMException("variable is immutable", headAtom);
+                    throw new VMException(varName + ": variable is immutable", headAtom);
 
                 if (n.RefDict != null)
                     n.RefDict.Get<Dictionary<string, SValue>>()[n.RefDictKey] = ret;
@@ -252,7 +252,8 @@ namespace Eugine
         {
             if (!env.ContainsKey(varName))
             {
-                SValue tmp = (varName.First() == '@') ? (SValue)new SString(varName.Substring(1)) : new SNull();
+                SValue tmp = (varName.First() == '@') ? 
+                    (SValue)new SString(varName.Substring(1), true) : new SNull(true);
 
                 if (env.ContainsKey(varName)) return env[varName];
 

@@ -46,3 +46,22 @@
 	)])
 	(lst)
 )]]
+
+[filter = [(op lst) => (->
+	[ret = (list)]
+	(loop lst [(e) => (if (op e) [ret += e])])
+	(ret) ; return
+)]]
+
+[random-list = [(n) => (->
+	[nums = (range 0 n)]
+	[ret = (list)]
+
+	(loop [(len nums) > 0] [() => (->
+		[idx = (floor [(random 0) * (len nums)])]
+		[ret += [nums : idx]]
+		(del nums idx)
+	)])
+
+	(ret)
+)]]

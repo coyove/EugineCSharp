@@ -31,7 +31,7 @@
 (defun left-padder (n c)
 	"padder can either pad a string or a list"
 	(lambda (subject) (->
-		(case #t
+		(cond #t
 			(
 				[(type subject) == "string"] 
 				(for (range 0 n) [() => (set subject [c + subject])])

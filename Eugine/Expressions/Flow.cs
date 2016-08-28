@@ -106,18 +106,18 @@ namespace Eugine
                 if (falseBranch != null)
                     return falseBranch.Evaluate(env);
                 else
-                    return new SBool(false);
+                    return new SNull();
             }
         }
     }
 
-    class SECase : SExpression
+    class SECond : SExpression
     {
         private SExpression condition;
         private List<Tuple<SExpression, SExpression>> branches;
         private SExpression defaultBranch;
 
-        public SECase(SExprAtomic ha, SExprComp c)
+        public SECond(SExprAtomic ha, SExprComp c)
         {
             if (c.Atomics.Count < 2) throw new VMException("at least 1 branch must be defined", ha);
 

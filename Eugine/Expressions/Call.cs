@@ -19,10 +19,11 @@ namespace Eugine
 
         public override SValue Evaluate(ExecEnvironment env)
         {
-            var list = this.list.Evaluate(env) as SList;
-            if (list == null) throw new VMException("only lists can be exploded", headAtom);
-
-            return new SExploded(list.Get<List<SValue>>());
+            var list = this.list.Evaluate(env);
+            if (list is SList)
+                return new SExploded(list.Get<List<SValue>>());
+            else
+                return new SExploded(new List<SValue>() { list });
         }
     }
 

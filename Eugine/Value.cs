@@ -31,7 +31,7 @@ namespace Eugine
             { "const",  (h, c) => new SESet(h, c, true) },
             { "=",      (h, c) => new SESet(h, c, false) },
             { "if",     (h, c) => new SEIf(h, c) },
-            { "case",   (h, c) => new SECase(h, c) },
+            { "cond",   (h, c) => new SECond(h, c) },
             { "->",     (h, c) => new SEChain(c) },
             { "chain",  (h, c) => new SEChain(c) },
             { "<-",     (h, c) => new SEReverseChain(c)},

@@ -100,16 +100,19 @@ namespace Eugine
         {
             var subObj = host.Evaluate(env);
             var idx = this.index.Evaluate(env);
-            if (subObj.Immutable) throw new VMException("variable is immutable", headAtom);
 
             if (idx is SNumber && subObj is SList)
             {
+                if (subObj.Immutable) throw new VMException("list is immutable", headAtom);
+
                 List<SValue> subList = subObj.Get<List<SValue>>();
                 subList.RemoveAt((int)idx.Get<Decimal>());
                 return subObj;
             }
             else if (idx is SString && subObj is SDict)
             {
+                if (subObj.Immutable) throw new VMException("dict is immutable", headAtom);
+
                 Dictionary<string, SValue> dict = subObj.Get<Dictionary<string, SValue>>();
                 dict.Remove(idx.Get<String>());
                 return subObj;
