@@ -81,6 +81,7 @@
 
 		[ret = (head lst)]
 		[[~parent : t] = (tail lst)] ;; (del lst 0)
+		;(.net-static-method (unsafe lst) "RemoveAt" ("System.Int32" 0))
 		ret
 	)
 )]]

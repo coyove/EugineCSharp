@@ -526,4 +526,21 @@ namespace Eugine
             }
         }
     }
+
+    class SEUnsafe : SExpression
+    {
+        private SExpression obj;
+
+        public SEUnsafe(SExprAtomic ha, SExprComp c) : base(ha, c)
+        {
+            if (c.Atomics.Count != 1) throw new VMException("it takes 1 argument", ha);
+
+            obj = SExpression.Cast(c.Atomics.Pop());
+        }
+
+        public override SValue Evaluate(ExecEnvironment env)
+        {
+            return new SObject(obj.Evaluate(env).Underlying);
+        }
+    }
 }

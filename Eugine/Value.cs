@@ -100,6 +100,7 @@ namespace Eugine
             { "explode",(h, c) => new SEExplode(h, c) },
             { "regex",  (h, c) => new SERegex(h, c) },
             { "match",  (h, c) => new SERegexMatch(h, c) },
+            { "unsafe", (h, c) => new SEUnsafe(h, c) },
 
             { ".net-type",              (h, c) => new SEInteropGetType(h, c) },
             { ".net-static-method",     (h, c) => new SEInteropInvokeStaticMethod(h, c) },
