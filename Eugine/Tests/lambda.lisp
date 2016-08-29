@@ -8,6 +8,17 @@
 ([(i) => (-> (set dummy i) (set dummy-2 i))] 1)
 (assert [[dummy == 1] and [dummy-2 == null]] "Test closure 2")
 
+(set outer 0)
+([() => (set outer 1)] ())
+
+(set outer-2 0)
+([() => (var outer-2 1)] ())
+
+(set outer-3 0)
+([() => [[~parent : "outer-3"] = 1]] ())
+
+(assert (== true [outer == 1] [outer-2 == 0] [outer-3 == 1]) "Test closure 3")
+
 ;================================================
 
 (set #test-list (1 2 3 4 5 -0.5))

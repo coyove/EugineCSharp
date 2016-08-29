@@ -13,10 +13,16 @@
 	(ret)
 ))
 
+(defun . (params...) [(.net-get-member [params : 0] [params : 1]) : 0])
+
 (defun assert (result msg...) (->
 	(if result 
 		(println "  [Passed] " (explode msg))
-		(exit "Test failed !")
+		(-> 
+			(var source [[~atom . @Token] . @Source])
+			(var li [[~atom . @Token] . @LineIndex])
+			(println "  [------] " (explode msg) " at " source ":" [li . @Item1] ":" [li . @Item2])
+		)
 	)
 ))
 
@@ -40,7 +46,7 @@
 	) ; end if
 ))
 
-[map = [(f lst) => (->
+[map := [(f lst) => (->
 	(for (range 0 (len lst)) [(i) => (
 		[[lst : i] = (f [lst : i])]
 	)])
@@ -64,4 +70,17 @@
 	)])
 
 	(ret)
+)]]
+
+;; never use this, it's experimental and fxxking slow, its existence only prove that ~parent is working
+[pop := [(lst) => (if [(len lst) == 0] null
+	(->
+		[t := ""]
+		(loop (keys ~parent) [(k) => (if [[~parent : k] == lst] (-> [t = k] #f))])
+		(println t)
+
+		[ret = (head lst)]
+		[[~parent : t] = (tail lst)] ;; (del lst 0)
+		ret
+	)
 )]]

@@ -130,7 +130,7 @@ namespace Eugine
 
         public override SValue Evaluate(ExecEnvironment env)
         {
-            env[func] = new SClosure(env, arguments, body);
+            env.NewVar(func, new SClosure(env, arguments, body));
             return new SBool(true);
         }
     }
@@ -205,6 +205,7 @@ namespace Eugine
             for (int i = 0; i < closure.Arguments.Count(); i++)
             {
                 string argName = closure.Arguments[i];
+
                 if (argName.Length > 3 && argName.Substring(argName.Length - 3) == "...")
                 {
                     argName = argName.Substring(0, argName.Length - 3);
@@ -214,6 +215,9 @@ namespace Eugine
                 else
                     newEnv[argName] = arguments[i];
             }
+
+            newEnv["~parent"] = new SDict(closure.InnerEnv);
+            newEnv["~atom"] = new SObject(headAtom);
 
             newEnv.ParentEnv = closure.InnerEnv;
             return closure.Body.Evaluate(newEnv);

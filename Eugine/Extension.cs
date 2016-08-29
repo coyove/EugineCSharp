@@ -80,6 +80,7 @@ namespace Eugine
     class ExecEnvironment : Dictionary<string, SValue>
     {
         public ExecEnvironment ParentEnv;
+        private bool strict = false;
 
         public bool ContainsKey(string key)
         {
@@ -121,8 +122,19 @@ namespace Eugine
                         ParentEnv[key] = value;
                 }
                 else
+                {
+                    if (!base.ContainsKey(key) && strict) throw new VMException(key + ": strict mode");
+
                     base[key] = value;
+
+                    if (key == "~strict") strict = true;
+                }
             }
+        }
+
+        public void NewVar(string key, SValue value)
+        {
+            base[key] = value;
         }
     }
 }

@@ -239,6 +239,7 @@ namespace Eugine
         {
             { "null", new SNull(true) },
             { "#nil", new SNull(true) },
+            { "~parent", new SString("~parent", true) },
             { "true", new SBool(true, true) },
             { "false", new SBool(false, true) },
             { "#t", new SBool(true, true) },

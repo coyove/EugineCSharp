@@ -30,6 +30,8 @@ namespace Eugine
             { "set",    (h, c) => new SESet(h, c, false) },
             { "const",  (h, c) => new SESet(h, c, true) },
             { "=",      (h, c) => new SESet(h, c, false) },
+            { "var",    (h, c) => new SEVar(h, c, false) },
+            { ":=",     (h, c) => new SEVar(h, c, false) },
             { "if",     (h, c) => new SEIf(h, c) },
             { "cond",   (h, c) => new SECond(h, c) },
             { "->",     (h, c) => new SEChain(c) },

@@ -1,8 +1,12 @@
 ;; if you tend to use a var without assign a value to it, its value = null
 ;; if you use a var with a "@" before its name (no space between), like @var-name, its value = "var-name" (string)
 
-(println "Begin tests\n")
+(println "Begin tests")
+(println "Working under " ~path "\n")
 
+; (set ~strict)
+
+(var start)
 [start = (time 1)]
 
 (~include "util.lisp")

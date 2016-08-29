@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace Eugine
@@ -166,7 +167,15 @@ namespace Eugine
 
             if (subObj == null) throw new VMException("property operation on a null object", headAtom);
 
-            return InteropHelper.ObjectToSValue(subObj.GetType().GetMember(propName.Get<String>()));
+            var info = subObj.GetType().GetMember(propName.Get<String>()).Select(m =>
+            {
+                if (m is FieldInfo)
+                    return ((FieldInfo)m).GetValue(subObj);
+                else
+                    return ((PropertyInfo)m).GetValue(subObj, null);
+            });
+            
+            return InteropHelper.ObjectToSValue(info);
         }
     }
 

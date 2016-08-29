@@ -15,7 +15,7 @@ namespace Eugine
 
         public SESet(SExprAtomic ha, SExprComp c, bool imm) : base(ha, c)
         {
-            if (c.Atomics.Count < 2) throw new VMException("it takes 2 arguments", ha);
+            if (c.Atomics.Count < 1) throw new VMException("it takes at least 1 argument", ha);
 
             var n = c.Atomics.Pop();
             if (n is SExprAtomic && (n as SExprAtomic).Token.TType == SToken.TokenType.ATOMIC)
@@ -23,7 +23,11 @@ namespace Eugine
             else
                 nameExpr = SExpression.Cast(n);
 
-            varValue = SExpression.Cast(c.Atomics.Pop());
+            if (c.Atomics.Count > 0)
+                varValue = SExpression.Cast(c.Atomics.Pop());
+            else
+                varValue = new SNull();
+
             makeImmutable = imm;
         }
 
@@ -48,7 +52,10 @@ namespace Eugine
                 if (env.ContainsKey(varName) && env[varName].Immutable)
                     throw new VMException(varName + ": variable is immutable", headAtom);
 
-                env[varName] = ret;
+                if (makeImmutable)
+                    env.NewVar(varName, ret);
+                else
+                    env[varName] = ret;
             }
             else
             {
@@ -64,6 +71,54 @@ namespace Eugine
                     throw new VMException("invalid variable setting", headAtom);
             }
 
+            return ret;
+        }
+    }
+
+    class SEVar : SExpression
+    {
+        private string varName;
+        private SExpression varValue;
+        private bool makeImmutable;
+
+        public SEVar(SExprAtomic ha, SExprComp c, bool imm) : base(ha, c)
+        {
+            if (c.Atomics.Count < 1) throw new VMException("it takes at least 1 argument", ha);
+
+            var n = c.Atomics.Pop();
+            if (n is SExprAtomic && (n as SExprAtomic).Token.TType == SToken.TokenType.ATOMIC)
+                varName = (string)(n as SExprAtomic).Token.TValue;
+            else
+                throw new VMException("variable name must be a string atom");
+
+            if (c.Atomics.Count > 0)
+                varValue = SExpression.Cast(c.Atomics.Pop());
+            else
+                varValue = new SNull();
+
+            makeImmutable = imm;
+        }
+
+        public override SValue Evaluate(ExecEnvironment env)
+        {
+            SValue v = varValue.Evaluate(env);
+            SValue ret = v;
+
+            if (!makeImmutable && v.Immutable)
+            {
+                ret = v.Clone();
+                ret.Immutable = false;
+            }
+
+            if (makeImmutable) ret.Immutable = true;
+
+            ret.RefDict = null;
+            ret.RefList = null;
+
+            if (env.ContainsKey(varName) && env[varName].Immutable)
+                throw new VMException(varName + ": variable is immutable", headAtom);
+
+            env.NewVar(varName, ret);
             return ret;
         }
     }
